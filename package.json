@@ -1,18 +1,18 @@
 {
-  "name": "qwiery-vue-cytoscape",
+  "name": "@orbifold/vue-cytoscape",
   "author": {
     "email": "info@orbifold.net",
     "name": "Orbifold Consulting (Francois Vanderseypen)",
     "url": "https://orbifold.net"
   },
-  "description": "A Vue3 Cytoscape component for Qwiery",
+  "description": "A Vue/Nuxt v3 Cytoscape component.",
   "homepage": "https://qwiery.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Qwiery/qwiery-utils.git"
+    "url": "https://github.com/Qwiery/qwiery-vue-cytoscape.git"
   },
   "bugs": {
-    "url": "https://github.com/Qwiery/qwiery-utils/issues",
+    "url": "https://github.com/Qwiery/qwiery-vue-cytoscape/issues",
     "email": "info@orbifold.net"
   },
   "engines": {
