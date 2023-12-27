@@ -1,0 +1,51 @@
+{
+  "name": "qwiery-vue-cytoscape",
+  "author": {
+    "email": "info@orbifold.net",
+    "name": "Orbifold Consulting (Francois Vanderseypen)",
+    "url": "https://orbifold.net"
+  },
+  "description": "A Vue3 Cytoscape component for Qwiery",
+  "homepage": "https://qwiery.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Qwiery/qwiery-utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Qwiery/qwiery-utils/issues",
+    "email": "info@orbifold.net"
+  },
+  "engines": {
+    "node": ">=21"
+  },
+  "private": false,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.3.11",
+    "cytoscape": "^3.26.0",
+    "cytoscape-cola": "^2.5.1",
+    "cytoscape-edgehandles": "^4.0.1",
+    "@orbifold/utils": "^4.0.2",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.2",
+    "vite": "^5.0.8",
+    "vite-plugin-dts": "^3.6.4",
+    "vite-plugin-node-polyfills": "^0.17.0",
+    "vitest": "^1.1.0"
+  }
+}
