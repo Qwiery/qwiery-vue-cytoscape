@@ -3,7 +3,7 @@
 </template>
 <script setup lang="ts">
 	/*
-	 * Cytoscape IGraphViewer implementation.
+	 * Cytoscape IGraphView implementation.
 	 * */
   import { onMounted } from 'vue';
 	import cytoscape, { Stylesheet } from "cytoscape"; // https://js.cytoscape.org/
@@ -12,8 +12,9 @@
 	import defaultStyle from "./styles/defaultStyle.json";
 	import schemaStyle from "./styles/schemaStyle.json";
 	import edgehandles from "cytoscape-edgehandles";
-	import type { s, IQwieryNode } from "@orbifold/utils";
-	import { CytoUtils } from "../cytoUtils"; // https://github.com/cytoscape/cytoscape.js-edgehandles
+  import type {IQwieryEdge, IQwieryNode, IGraphView, GraphLike} from "@orbifold/utils";
+	import { Utils } from "@orbifold/utils";
+  import { CytoUtils } from "../cytoUtils"; // https://github.com/cytoscape/cytoscape.js-edgehandles
 	let selectionDebounceTimeout: any = null;
 	cytoscape.use(edgehandles);
 	cytoscape.use(cola);
@@ -79,14 +80,14 @@
 		return cy.$(":selected").remove();
 	}
 
-	function loadGraph(g: Graph | any, replace: boolean = true) {
-		if (_.isPlainObject(g)) {
-			if (g.typeName === "Graph") {
-				g = Graph.fromJSON(g);
-			} else {
-				throw new Error("Right now only supporting a Graph.");
-			}
-		}
+	function loadGraph(g: GraphLike | any, replace: boolean = true) {
+		// if (_.isPlainObject(g)) {
+		// 	if (g.typeName === "Graph") {
+		// 		g = Graph.fromJSON(g);
+		// 	} else {
+		// 		throw new Error("Right now only supporting a Graph.");
+		// 	}
+		// }
 		if (replace) {
 			clear();
 		}
@@ -99,15 +100,14 @@
 		cy.elements().remove();
 	}
 
-	function setStyle(styleName: GraphStyle) {
+	function setStyle(styleName: string) {
 		if (styleName) {
-			switch (styleName) {
-				case GraphStyle.Default:
+			switch (styleName.toString().trim().toLowerCase()) {
+				case "default":
 					cy.style(<Stylesheet[]>defaultStyle);
 					break;
-				case GraphStyle.Schema:
+				case "schema":
 					cy.style(<Stylesheet[]>schemaStyle);
-
 					break;
 			}
 		}
@@ -115,7 +115,7 @@
 
 	/**
 	 * Apply the layout with the name and options.
-	 * @see Part of the {@link IGraphViewer} interface.
+	 * @see Part of the {@link IGraphView} interface.
 	 * @param layoutName {string} The name of the layout.
 	 * @param [options] {any} Options specific to the layout.
 	 */
@@ -131,14 +131,14 @@
 				concentricLayout(options);
 				break;
 			default:
-				return Toasts.error(`The layout type '${layoutName}' is not handled or not supported.`);
+				return new Error(`The layout type '${layoutName}' is not handled or not supported.`);
 		}
 		fit();
 	}
 
 	/**
 	 * Centers the graph in the canvas.
-	 * @see Part of the {@link IGraphViewer} interface.
+	 * @see Part of the {@link IGraphView} interface.
 	 * @param [shouldFit] {boolean} Whether to resize so it fits in the cureent view.
 	 */
 	function center(shouldFit: boolean = true) {
@@ -391,7 +391,7 @@
 		cy.fit();
 	}
 
-	function augment(g: Graph) {
+	function augment(g: GraphLike) {
 		const coll: any[] = [];
 
 		function pushNode(node) {
@@ -427,33 +427,37 @@
 	}
 
 	/**
-	 * Expose the IGraphViewer interface.
+	 * Expose the IGraphView interface.
+   *
+   * This Cytoscape wrapper implements the Qwiery `IGraphView` interface and it means you can transparently exchange it with other implementations.
+   * The [yFiles](https://github.com/Qwiery/qwiery-vue-yfiles) and [Linkurious Ogma](https://github.com/Qwiery/qwiery-vue-ogma) implementations are more advanced but are not free.
 	 */
-	defineExpose({
-		addNode,
-		loadGraph,
-		clear,
-		setStyle,
-		layout,
-		center,
-		fit,
-		zoom,
-		removeNode,
-		getNodes,
-		removeIsolatedNodes,
-		edgeCreation,
-		nodeCreation,
-		selectedNodes,
-		centerNode,
-		getPosition,
-		removeSelection,
-		getNode,
-		refreshStyle,
-		forceResize,
-		augment,
-		setNodeProperty,
-		setNodeProperties,
-	});
+	defineExpose<IGraphView>({
+    addEdge,
+    addNode,
+    augment,
+    center,
+    centerNode,
+    clear,
+    edgeCreation,
+    fit,
+    forceResize,
+    getNode,
+    getNodes,
+    getPosition,
+    layout,
+    loadGraph,
+    nodeCreation,
+    refreshStyle,
+    removeIsolatedNodes,
+    removeNode,
+    removeSelection,
+    selectedNodes,
+    setNodeProperties,
+    setNodeProperty,
+    setStyle,
+    zoom,
+  });
 </script>
 <style scoped>
 	#cy {
