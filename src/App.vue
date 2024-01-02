@@ -7,10 +7,22 @@
 		<button class="btn" @click="loadSomething()">Sample Graph</button>
 		<button class="btn" @click="removeIsolated()">Drop Isolated</button>
 		<button class="btn" @click="addEdge()">Add Edge</button>
+		<button class="btn" @click="removeEdge()">Remove Edge</button>
 		<button class="btn" @click="addNode()">Add Node</button>
+		<button class="btn" @click="removeNode()">Remove Node</button>
 		<button class="btn" @click="clear()">Clear</button>
+		<button class="btn" @click="augment()">Augment</button>
+		<button class="btn" @click="center()">Center</button>
+		<button class="btn" @click="zoomIn()">Zoom In</button>
+		<button class="btn" @click="zoomOut()">Zoom Out</button>
+
 		<div class="btn"><label for="edgeCreation">Edge Creation</label>
 			<input id="edgeCreation" type="checkbox" @click="toggleEdgeCreation()"></div>
+
+		<span style="margin-left: 20px;">Layout: </span>
+		<button style="margin-left: 20px" class="btn cyan" @click="layout('concentric')">Concentric</button>
+		<button class="btn cyan" @click="layout('organic')">Organic</button>
+		<button class="btn cyan" @click="layout('hierarchical')">Hierarchical</button>
 	</div>
 	<div class="wrapper">
 		<CytoscapeViewer class="cytoscape" ref="viewer" />
@@ -29,6 +41,9 @@
 		cy = <IGraphView><unknown>viewer.value;
 	});
 
+	function layout(name: string) {
+		cy.layout(name);
+	}
 	function removeIsolated() {
 		cy.removeIsolatedNodes();
 	}
@@ -57,7 +72,7 @@
 	function addEdge() {
 		const ids = cy.getNodes().map(n => n.id);
 		if (ids.length > 1) {
-			const tuple =_.sampleSize(ids, 2);
+			const tuple = _.sampleSize(ids, 2);
 			const sourceId = tuple[0];
 			const targetId = tuple[1];
 			cy.addEdge({ sourceId, targetId });
@@ -90,15 +105,60 @@
 	function clear() {
 		cy.clear();
 	}
+	function center(){
+		cy.center();
+	}
+
+	function augment() {
+		const id1 = Utils.id(), id2 = Utils.id();
+		cy.augment({
+			nodes: [{
+				id: id1,
+			},
+				{
+					id: id2,
+				}],
+			edges: [
+				{
+					sourceId: id1,
+					targetId: id2,
+				},
+			]
+			,
+		});
+	}
+
+	function removeEdge() {
+		const edges = cy.getEdges();
+		if (edges.length > 0) {
+			const edge = _.sample(edges);
+			cy.removeEdge(edge.id);
+		}
+	}
+
+	function removeNode() {
+		const nodes = cy.getNodes();
+		if (nodes.length > 0) {
+			const node = _.sample(nodes);
+			cy.removeNode(node.id);
+		}
+	}
+	function zoomIn() {
+		cy.zoom(cy.zoom() + 0.1);
+	}
+	function zoomOut() {
+		cy.zoom(cy.zoom() - 0.1);
+	}
 </script>
 
 
-<style >
-	a{
+<style>
+	a {
 		text-decoration: none;
 		color: steelblue;
 		font-weight: bold;
 	}
+
 	.wrapper {
 		padding: 5px;
 		height: 80vh;
@@ -135,5 +195,8 @@
 		cursor: pointer;
 		border-radius: 4px;
 		margin-right: 5px;
+	}
+	.cyan{
+		background-color: #3da8a8;
 	}
 </style>

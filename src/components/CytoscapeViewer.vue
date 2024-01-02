@@ -5,24 +5,25 @@
 	/*
 	 * Cytoscape IGraphView implementation.
 	 * */
-  import { onMounted } from 'vue';
+	import { onMounted } from "vue";
 	import cytoscape, { Stylesheet } from "cytoscape"; // https://js.cytoscape.org/
 	import _ from "lodash";
 	import cola from "cytoscape-cola"; // https://github.com/cytoscape/cytoscape.js-cola
 	import defaultStyle from "./styles/defaultStyle.json";
 	import schemaStyle from "./styles/schemaStyle.json";
 	import edgehandles from "cytoscape-edgehandles";
-  import type {IQwieryEdge, IQwieryNode, IGraphView, GraphLike} from "@orbifold/utils";
+	import type { IQwieryEdge, IQwieryNode, IGraphView, GraphLike } from "@orbifold/utils";
 	import { Utils } from "@orbifold/utils";
-  import { CytoUtils } from "../cytoUtils"; // https://github.com/cytoscape/cytoscape.js-edgehandles
+	import { CytoUtils } from "../cytoUtils"; // https://github.com/cytoscape/cytoscape.js-edgehandles
 	let selectionDebounceTimeout: any = null;
 	cytoscape.use(edgehandles);
 	cytoscape.use(cola);
 	let currentPosition: any = { x: 0, y: 0 };
 	let cy: cytoscape.Core;
 	let edgeCreator: any = null;
-	let nodeCreationEnabled = false;
+	let nodeCreationEnabled = false
 	let edgeCreationEnabled = false;
+
 	const emit = defineEmits<{
 		(e: "selectionChanged", selection: any[]): void;
 		(e: "doubleClick", id: string): void;
@@ -38,11 +39,11 @@
 		window["cy"] = cy;
 
 		let edgeHandlesDefaults = {
-			canConnect: function (sourceNode, targetNode) {
+			canConnect: function(sourceNode, targetNode) {
 				// whether an edge can be created between source and target
 				return !sourceNode.same(targetNode); // e.g. disallow loops
 			},
-			edgeParams: function (sourceNode, targetNode) {
+			edgeParams: function(sourceNode, targetNode) {
 				// for edges between the specified source and target
 				// return element object to be passed to cy.add() for edge
 				return {};
@@ -80,6 +81,8 @@
 	function removeSelection() {
 		return cy.$(":selected").remove();
 	}
+
+
 
 	function loadGraph(g: GraphLike | any, replace: boolean = true) {
 		// if (_.isPlainObject(g)) {
@@ -205,15 +208,34 @@
 			}
 		}
 	}
+	function removeEdge(id: string | any) {
+		if (!Utils.isEmpty(id)) {
+			if (_.isString(id)) {
+				cy.remove(cy.getElementById(id));
+			} else {
+				cy.remove(id);
+			}
+		}
+	}
 
-	function getNodes(filter: Function|null=null): IQwieryNode[] {
+	function getNodes(filter: Function | null = null): IQwieryNode[] {
 		let found = [];
 		if (filter) {
 			found = cy.nodes().filter((element: any, i: number, elements: any[]) => filter(element, i, elements));
 		} else {
 			found = cy.nodes();
 		}
-		return CytoUtils.toPlain(found.toArray())
+		return CytoUtils.toPlain(found.toArray());
+	}
+
+	function getEdges(filter: Function | null = null): IQwieryNode[] {
+		let found = [];
+		if (filter) {
+			found = cy.edges().filter((element: any, i: number, elements: any[]) => filter(element, i, elements));
+		} else {
+			found = cy.edges();
+		}
+		return CytoUtils.toPlain(found.toArray());
 	}
 
 	function removeIsolatedNodes() {
@@ -246,13 +268,13 @@
 	}
 
 	function addEventHandlers() {
-		cy.on("mousemove", function (e) {
+		cy.on("mousemove", function(e) {
 			currentPosition = e.position;
 		});
-		cy.on("dbltap", "node", function (e) {
+		cy.on("dbltap", "node", function(e) {
 			emit("doubleClick", e.target.data("id"));
 		});
-		cy.on("dbltap", function (e) {
+		cy.on("dbltap", function(e) {
 			const evtTarget = e.target;
 			if (!nodeCreationEnabled) {
 				if (evtTarget === cy) {
@@ -267,7 +289,7 @@
 			}
 		});
 
-		cy.on("tap", function (e) {
+		cy.on("tap", function(e) {
 			if (nodeCreationEnabled) {
 				const evtTarget = e.target;
 				if (evtTarget === cy) {
@@ -308,21 +330,21 @@
 				cy.nodes().unlock();
 			}
 		});
-		cy.on("select", "node", function (e) {
+		cy.on("select", "node", function(e) {
 			// debounce
 			if (selectionDebounceTimeout) {
 				clearTimeout(selectionDebounceTimeout);
 			}
-			selectionDebounceTimeout = setTimeout(function () {
+			selectionDebounceTimeout = setTimeout(function() {
 				const selection = selectedNodes();
 				emit("selectionChanged", selection);
 			}, 200);
 		});
-		cy.on("unselect", "node", function (e) {
+		cy.on("unselect", "node", function(e) {
 			if (selectionDebounceTimeout) {
 				clearTimeout(selectionDebounceTimeout);
 			}
-			selectionDebounceTimeout = setTimeout(function () {
+			selectionDebounceTimeout = setTimeout(function() {
 				const selection = selectedNodes();
 				emit("selectionChanged", selection);
 			}, 200);
@@ -376,6 +398,7 @@
 			node.data(name, value);
 		}
 	}
+
 	function setNodeProperties(id, data) {
 		const node = getNode(id);
 		if (node) {
@@ -392,6 +415,10 @@
 		cy.fit();
 	}
 
+	/**
+	 * Augment the current graph with the nodes and edges of the given graph.
+	 * @param g {GraphLike} The graph to augment with.
+	 */
 	function augment(g: GraphLike) {
 		const coll: any[] = [];
 
@@ -401,6 +428,7 @@
 				coll.push(CytoUtils.toCyNode(node));
 			}
 		}
+
 
 		function pushEdge(edge) {
 			// const id = edge.id;
@@ -429,43 +457,45 @@
 
 	/**
 	 * Expose the IGraphView interface.
-   *
-   * This Cytoscape wrapper implements the Qwiery `IGraphView` interface and it means you can transparently exchange it with other implementations.
-   * The [yFiles](https://github.com/Qwiery/qwiery-vue-yfiles) and [Linkurious Ogma](https://github.com/Qwiery/qwiery-vue-ogma) implementations are more advanced but are not free.
+	 *
+	 * This Cytoscape wrapper implements the Qwiery `IGraphView` interface and it means you can transparently exchange it with other implementations.
+	 * The [yFiles](https://github.com/Qwiery/qwiery-vue-yfiles) and [Linkurious Ogma](https://github.com/Qwiery/qwiery-vue-ogma) implementations are more advanced but are not free.
 	 */
 	defineExpose<IGraphView>({
-    addEdge,
-    addNode,
-    augment,
-    center,
-    centerNode,
-    clear,
-    edgeCreation,
-    fit,
-    forceResize,
-    getNode,
-    getNodes,
-    getPosition,
-    layout,
-    loadGraph,
-    nodeCreation,
-    refreshStyle,
-    removeIsolatedNodes,
-    removeNode,
-    removeSelection,
-    selectedNodes,
-    setNodeProperties,
-    setNodeProperty,
-    setStyle,
-    zoom,
-  });
+		addEdge,
+		addNode,
+		augment,
+		center,
+		centerNode,
+		clear,
+		edgeCreation,
+		fit,
+		forceResize,
+		getNode,
+		getNodes,
+		getEdges,
+		getPosition,
+		layout,
+		loadGraph,
+		nodeCreation,
+		refreshStyle,
+		removeIsolatedNodes,
+		removeNode,
+		removeEdge,
+		removeSelection,
+		selectedNodes,
+		setNodeProperties,
+		setNodeProperty,
+		setStyle,
+		zoom,
+	});
 </script>
 <style scoped>
 	#cy {
-    z-index: 0;
-    height: 85vh;
-    width: 100%;
-    background-color: transparent;
-    outline: none;
+		z-index: 0;
+		height: 85vh;
+		width: 100%;
+		background-color: transparent;
+		outline: none;
 	}
 </style>

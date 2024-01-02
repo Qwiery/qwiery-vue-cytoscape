@@ -38,7 +38,7 @@
     "cytoscape": "^3.26.0",
     "cytoscape-cola": "^2.5.1",
     "cytoscape-edgehandles": "^4.0.1",
-    "@orbifold/utils": "^4.1.0",
+    "@orbifold/utils": "latest",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
