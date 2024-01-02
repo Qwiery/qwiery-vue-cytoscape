@@ -61,6 +61,7 @@
 	function addNode(node: IQwieryNode) {
 		const cyNode = CytoUtils.toCyNode(node);
 		cy.add(cyNode);
+		return cyNode.data.id;
 	}
 
 	function addEdge(edge: IQwieryEdge) {
@@ -205,14 +206,14 @@
 		}
 	}
 
-	function getNodes(filter?: Function): IQwieryNode[] {
+	function getNodes(filter: Function|null=null): IQwieryNode[] {
 		let found = [];
 		if (filter) {
 			found = cy.nodes().filter((element: any, i: number, elements: any[]) => filter(element, i, elements));
 		} else {
-			found = cy.elements();
+			found = cy.nodes();
 		}
-		return CytoUtils.toPlain(found);
+		return CytoUtils.toPlain(found.toArray())
 	}
 
 	function removeIsolatedNodes() {

@@ -205,20 +205,19 @@ export   class CytoUtils {
 			if (Utils.isEmpty(el)) {
 				return null;
 			}
-			if (CytoUtils.isCytoNode(el)) {
-				let p = _.cloneDeep(el.data || {});
-				if (el.position) {
-					_.assign(p, el.position);
-				}
+			if (CytoUtils.isCytoNodeInstance(el)) {
+				let p = _.cloneDeep(el.data() || {});
+				_.assign(p, el.position());
+				p.id = el.id() ;
 				return p;
-			} else if (CytoUtils.isCytoEdge(el)) {
-				let p = _.cloneDeep(el.data || {});
+			} else if (CytoUtils.isCytoEdgeInstance(el)) {
+				let p = _.cloneDeep(el.data() || {});
 				// rename, the Qwiery naming is sourceId/targetId
 				p.sourceId = p.source || null;
 				delete p.source;
 				p.targetId = p.target || null;
 				delete p.target;
-				p.id = el.data.id || el.id();
+				p.id = el.id()  ;
 				return p;
 			} else {
 				// presumable a cy element as json
